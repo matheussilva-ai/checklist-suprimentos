@@ -546,64 +546,6 @@ const CLINICS = [
   },
 ];
 
-// -------- IMAGENS: API pública do Mercado Livre (chamada do browser, sem CORS) --------
-const IMG_CACHE = {};
-
-function extractMlbId(url) {
-  if (!url) return null;
-  // Padrões: MLB-2968870446, MLB3829209043, /p/MLB32664550, MLBU752487432
-  const m = url.match(/MLB[-]?(\d{7,12})/i);
-  return m ? `MLB${m[1]}` : null;
-}
-
-async function loadImg(item, imgEl, phEl) {
-  if (!imgEl) return;
-  const cached = IMG_CACHE[item.id];
-  if (cached === 'error') return;
-  if (cached) { applyImg(imgEl, phEl, cached); return; }
-
-  const url = item.link;
-  if (!url || url.includes('encomenda')) return;
-
-  // Tenta ML API primeiro (funciona do browser)
-  const mlbId = extractMlbId(url);
-  if (mlbId) {
-    try {
-      const res = await fetch(`https://api.mercadolibre.com/items/${mlbId}?attributes=thumbnail`, {signal: AbortSignal.timeout(6000)});
-      if (res.ok) {
-        const data = await res.json();
-        let src = data.thumbnail || '';
-        // Upscale: -I.jpg (90px) → -O.jpg (600px)
-        src = src.replace(/-[A-Z]\.jpg/, '-O.jpg').replace('http://', 'https://');
-        if (src) { IMG_CACHE[item.id] = src; applyImg(imgEl, phEl, src); return; }
-      }
-    } catch(e) {}
-  }
-
-  // Fallback: allorigins para og:image (Reval, BMB, etc.)
-  if (!mlbId && url && !url.includes('issam') && !url.includes('encomenda')) {
-    try {
-      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-      const res = await fetch(proxy, {signal: AbortSignal.timeout(8000)});
-      if (res.ok) {
-        const data = await res.json();
-        const m = data.contents.match(/(?:og:image|twitter:image)[^>]*content=["']([^"']+)["']|content=["']([^"']+)["'][^>]*(?:og:image|twitter:image)/i);
-        const src = m && (m[1] || m[2]);
-        if (src) { IMG_CACHE[item.id] = src; applyImg(imgEl, phEl, src); return; }
-      }
-    } catch(e) {}
-  }
-
-  IMG_CACHE[item.id] = 'error';
-}
-
-function applyImg(imgEl, phEl, src) {
-  imgEl.src = src;
-  imgEl.style.display = 'block';
-  imgEl.onload  = () => { imgEl.classList.add('loaded'); if (phEl) phEl.style.display = 'none'; };
-  imgEl.onerror = () => { imgEl.style.display = 'none'; };
-}
-
 
 
 // -------- ITENS SALA PADRÃO (36 itens) --------
