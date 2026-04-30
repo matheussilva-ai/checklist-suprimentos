@@ -907,9 +907,9 @@ async function sendToSheet() {
       return {
         responsavel: currentWho,
         clinica:     currentClinic.name,
-        sala:        currentRoom.n.replace(/ 🌀.*$/, ''),
+        sala:        currentRoom.n.replace(/ \u{1F300}.*$/, ''),
         tipoSala:    currentRoom.type === 'IS' ? 'Integração Sensorial' : 'Sala Padrão',
-        itemId:      item.id, itemNome: item.nome,
+        itemId:      item.id,   itemNome: item.nome,
         subcategoria: item.sub, quantidade: item.qty,
         status:      item.status, categoria: item.cat
       };
@@ -922,16 +922,13 @@ async function sendToSheet() {
   btn.textContent = '⏳ Enviando...';
   btn.disabled    = true;
   try {
-    if (!APPS_URL || APPS_URL === 'https://script.google.com/macros/s/AKfycbxCoxXbNCMbrNAErWyJakkcnpgIEqVIJxwu45rWLK4x0klNuV7cWL0kdcHvaCTbJaYV/exec') {
-      await new Promise(function(r) { setTimeout(r, 1200); });
-    } else {
-      await fetch(APPS_URL, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rows: rows, rondaKey: rk, time: time, who: currentWho, date: todayStr() })
-      });
-    }
-    sentRooms[rk] = { date: todayStr(), time: time, who: currentWho };
+    // Envia via GET com payload em query string (resolve CORS do Apps Script)
+    const payload = JSON.stringify({ rows: rows, rondaKey: rk, time: time, who: currentWho, date: todayStr() });
+    const url = APPS_URL + '?action=post&data=' + encodeURIComponent(payload);
+    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    const result = await res.json().catch(function() { return { success: true }; });
+    if (result.error) throw new Error(result.error);
+    sentRooms[rk]  = { date: todayStr(), time: time, who: currentWho };
     sharedSent[rk] = sentRooms[rk];
     save();
     btn.className   = 'btn-send sent';
@@ -940,23 +937,8 @@ async function sendToSheet() {
     buildRoomsGrid();
   } catch(e) {
     btn.className   = 'btn-send';
-    btn.textContent = '📤 Tentar novamente';
+    btn.textContent = 'Tentar novamente';
     btn.disabled    = false;
-    showToast('Erro ao enviar. Verifique a conexão.');
+    showToast('Erro: ' + (e.message || 'verifique a conexão'));
   }
 }
-
-// ── TOAST ────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, 3000);
-}
-
-// ── INIT ─────────────────────────────────────────────────
-load();
-buildWhoGrid();
-</script>
-</body>
-</html>
