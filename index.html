@@ -746,9 +746,10 @@ function load() {
 const PEOPLE = ['Elaine','Maria Luíza','Nathália','Matheus','Marina','Eliza'];
 function buildWhoGrid() {
   const grid = document.getElementById('whoGrid');
-  grid.innerHTML = PEOPLE.map(p => {
-    const initial = p.split('')[0][0] + (p.split('')[1]?.[0]||p[1]);
-    return `<button class="who-btn" onclick="selectWho(this,'${p}')"><div class="who-initial">${p[0]}${p.split('').slice(-1)[0][0]}</div>${p}</button>`;
+  grid.innerHTML = PEOPLE.map(function(p) {
+    const parts = p.split(' ');
+    const ini = parts[0][0] + (parts.length > 1 ? parts[parts.length-1][0] : (p[1]||''));
+    return '<button class="who-btn" onclick="selectWho(this,\'' + p + '\')"><div class="who-initial">' + ini.toUpperCase() + '</div>' + p + '</button>';
   }).join('');
 }
 function selectWho(btn, name) {
