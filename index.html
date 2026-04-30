@@ -99,6 +99,11 @@ header{background:var(--dark);padding:14px 20px;position:sticky;top:0;z-index:10
 .sala-obs-lbl{font-family:"Syne",sans-serif;font-weight:700;font-size:.75rem;color:var(--mid);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .sala-obs-ta{width:100%;border:1.5px solid #DDE4EA;border-radius:10px;padding:10px 12px;font-size:.82rem;font-family:"DM Sans",sans-serif;color:#1A2332;resize:none;outline:none;min-height:72px;transition:border-color .15s}
 .sala-obs-ta:focus{border-color:var(--teal)}
+
+/* última ronda na clínica */
+.c-last{font-size:.65rem;color:var(--teal-dk);margin-top:3px;font-style:italic}
+/* badge de sala com data (ronda anterior) */
+.dbadge.old{background:#8499AE}
 </style>
 </head>
 <body>
@@ -552,7 +557,7 @@ function doImg(img, ph, src) {
 
 // ── ESTADO ───────────────────────────────────────────────
 var WHO = null, CLINIC = null, ROOM = null, FILTER = "all";
-var checks = {}, sent = {}, shared = {}, notes = {}, roomObs = {};
+var checks = {}, sent = {}, shared = {}, notes = {}, roomObs = {}, lastRonda = {};
 function sk(c,r,i){ return c+"_"+r+"_"+i; }
 function rk(c,r)  { return c+"_"+r; }
 function today()  { return new Date().toLocaleDateString("pt-BR"); }
@@ -659,7 +664,9 @@ function buildClinics() {
     var isN=0; for (var j=0;j<c.rooms.length;j++) if(c.rooms[j].type==="IS") isN++;
     html += "<button class=\"cbtn\" id=\"cb_"+c.id+"\" onclick=\"pickClinic(this,'"+c.id+"')\">";
     html += "<div class=\"ci\">\u{1F3E5}</div>";
-    html += "<div style=\"flex:1\"><div class=\"cn\">"+c.name+"</div><div class=\"cs\">"+(c.rooms.length-isN)+" padr\u00e3o \u00b7 "+isN+" IS</div></div>";
+    var lr = lastRonda[c.id];
+    var lrTxt = lr ? "<div class=\"c-last\">\u23F1 \u00daltima ronda: " + lr.date + "</div>" : "";
+    html += "<div style=\"flex:1\"><div class=\"cn\">"+c.name+"</div><div class=\"cs\">"+(c.rooms.length-isN)+" padr\u00e3o \u00b7 "+isN+" IS</div>"+lrTxt+"</div>";
     html += "<div class=\"ca\">\u203a</div></button>";
   }
   document.getElementById("clinicsGrid").innerHTML = html;
@@ -683,7 +690,9 @@ function buildRooms() {
     var isIS = r.type === "IS";
     var nm = r.n.replace(/ \u{1F300}[\s\S]*$/, "").trim();
     var byO = d && d.who && d.who !== WHO;
-    var badge = d ? "<div class=\"dbadge\">"+(byO?"\u{1F465} "+d.who.split(" ")[0]+" ":"\u2713 ")+d.time+"</div>" : "";
+    var isToday = d && d.date === today();
+    var badgeTxt = isToday ? (byO ? "\u{1F465} "+d.who.split(" ")[0]+" " : "\u2713 ") + d.time : "";
+    var badge = badgeTxt ? "<div class=\"dbadge\">" + badgeTxt + "</div>" : "";
     html += "<button class=\"rbtn"+(isIS?" is-r":"")+(d?" done":"")+" \" onclick=\"pickRoom('"+r.id+"')\">";
     html += badge + "<div class=\"rn\">"+nm+"</div><div class=\"rt\">"+(isIS?"\u{1F300} IS":"Padr\u00e3o")+"</div></button>";
   }
@@ -801,14 +810,26 @@ function resetRoom() {
 async function fetchShared() {
   if (!APPS_URL) return;
   try {
-    var url = APPS_URL + "?action=status&date=" + encodeURIComponent(today());
+    // Busca sem filtro de data para pegar histórico completo
+    var url = APPS_URL + "?action=status";
     var r = await fetch(url, {signal: AbortSignal.timeout(6000)});
     if (!r.ok) return;
     var d = await r.json();
     if (d.rooms) {
       shared = d.rooms;
-      var td = today();
-      for (var k in sent) { if (sent[k].date===td) shared[k]=sent[k]; }
+      // local tem prioridade
+      for (var k in sent) { shared[k] = sent[k]; }
+      // Calcular última ronda por clínica
+      lastRonda = {};
+      for (var k in shared) {
+        var parts = k.split('_'); // clinicId_roomId
+        var cid = parts[0];
+        var entry = shared[k];
+        if (!lastRonda[cid] || entry.date > lastRonda[cid].date ||
+           (entry.date === lastRonda[cid].date && entry.time > lastRonda[cid].time)) {
+          lastRonda[cid] = entry;
+        }
+      }
     }
   } catch(e) {}
 }
