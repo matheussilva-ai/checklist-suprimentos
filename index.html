@@ -577,7 +577,7 @@ function goS3() {
   var bn = document.getElementById("rbanner");
   bn.className = "rbanner " + (isIS ? "is" : "p");
   bn.querySelector(".rb-ico").textContent = isIS ? "\u{1F300}" : "\u2B1C";
-  bn.querySelector(".rb-ttl").textContent = ROOM.n.replace(/ .*$/, "") + " \u2013 " + (isIS ? "Integra\u00e7\u00e3o Sensorial" : "Sala Padr\u00e3o");
+  bn.querySelector(".rb-ttl").textContent = ROOM.n.replace(/ \u{1F300}.*$/, "").trim() + " \u2013 " + (isIS ? "Integra\u00e7\u00e3o Sensorial" : "Sala Padr\u00e3o");
   bn.querySelector(".rb-sub").textContent = CLINIC.name;
   FILTER = "all";
   var fts = document.querySelectorAll(".ft");
@@ -624,7 +624,7 @@ function buildRooms() {
     var k = rk(CLINIC.id, r.id);
     var d = doneInfo(k);
     var isIS = r.type === "IS";
-    var nm = r.n.replace(/ \u{1F300}.*$/,"");
+    var nm = r.n.replace(/ \u{1F300}[\s\S]*$/, "").trim();
     var byO = d && d.who && d.who !== WHO;
     var badge = d ? "<div class=\"dbadge\">"+(byO?"\u{1F465} "+d.who.split(" ")[0]+" ":"\u2713 ")+d.time+"</div>" : "";
     html += "<button class=\"rbtn"+(isIS?" is-r":"")+(d?" done":"")+" \" onclick=\"pickRoom('"+r.id+"')\">";
@@ -717,7 +717,7 @@ function updateStats() {
 
 // ── RESET ────────────────────────────────────────────────
 function resetRoom() {
-  var nm = ROOM.n.replace(/ .*$/,"");
+  var nm = ROOM.n.split("\u{1F300}")[0].split("\u{1F465}")[0].trim();
   if (!confirm("Limpar checklist da "+nm+"?")) return;
   var items = ROOM.type==="IS"?ITEMS_IS:ITEMS_PADRAO;
   for(var i=0;i<items.length;i++) delete checks[sk(CLINIC.id,ROOM.id,items[i].id)];
@@ -760,7 +760,7 @@ async function enviar() {
     if (!st) continue;
     rows.push({
       responsavel: WHO, clinica: CLINIC.name,
-      sala: ROOM.n.replace(/ .*$/,""),
+      sala: ROOM.n.replace(/ \u{1F300}[\s\S]*$/, "").trim(),
       tipoSala: ROOM.type==="IS"?"Integra\u00e7\u00e3o Sensorial":"Sala Padr\u00e3o",
       itemId: items[i].id, itemNome: items[i].nome,
       subcategoria: items[i].sub, quantidade: items[i].qty,
