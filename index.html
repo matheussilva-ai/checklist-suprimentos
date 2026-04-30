@@ -638,16 +638,16 @@ function buildWhoGrid() {
   const grid = document.getElementById('whoGrid');
   grid.innerHTML = PEOPLE.map(function(p) {
     const parts = p.split(' ');
-    const ini = (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : (p[1] || ''))).toUpperCase();
-    return '<button class="who-btn" onclick="selectWho(this,\'' + p + '\')">'
+    const ini = (parts[0][0] + (parts.length > 1 ? parts[parts.length-1][0] : (p[1]||''))).toUpperCase();
+    return '<button class="who-btn" data-name="' + p + '" onclick="selectWho(this)">'
          + '<div class="who-initial">' + ini + '</div>' + p + '</button>';
   }).join('');
 }
 
-function selectWho(btn, name) {
+function selectWho(btn) {
   document.querySelectorAll('.who-btn').forEach(function(b) { b.classList.remove('sel'); });
   btn.classList.add('sel');
-  currentWho = name;
+  currentWho = btn.getAttribute('data-name');
   document.getElementById('startBtn').disabled = false;
 }
 
