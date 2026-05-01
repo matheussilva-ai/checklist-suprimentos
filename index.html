@@ -489,7 +489,6 @@ const CLINICS = [
   // ── CG SANTANA ──────────────────────────────────────────────────────────────
   // Sala 1 IS (2 crianças), Sala 2 IS (1 criança), Salas 3-16 Padrão  (fonte: planilha)
   {
-  {
     id: "santana",
     name: "CG Santana",
     rooms: [
@@ -528,7 +527,7 @@ const CLINICS = [
       { id:"s33", n:"Sala 33", type:"padrao" },
       { id:"s34", n:"Sala 34", type:"padrao" },
     ]
-  }  },
+  },
 ];
 
 
@@ -724,8 +723,8 @@ function goS3() {
   var isIS = ROOM.type === "IS";
   var bn = document.getElementById("rbanner");
   bn.className = "rbanner " + (isIS ? "is" : "p");
-  bn.querySelector(".rb-ico").textContent = isIS ? "\u{1F300}" : "\u2B1C";
-  bn.querySelector(".rb-ttl").textContent = ROOM.n.replace(/ \u{1F300}.*$/, "").trim() + " \u2013 " + (isIS ? "Integra\u00e7\u00e3o Sensorial" : "Sala Padr\u00e3o");
+  bn.querySelector(".rb-ico").textContent = isIS ? "\uD83C\uDF00" : "\u2B1C";
+  bn.querySelector(".rb-ttl").textContent = ROOM.n.replace(/ \uD83C\uDF00.*$/, "").trim() + " \u2013 " + (isIS ? "Integra\u00e7\u00e3o Sensorial" : "Sala Padr\u00e3o");
   bn.querySelector(".rb-sub").textContent = CLINIC.name;
   FILTER = "all";
   var fts = document.querySelectorAll(".ft");
@@ -734,7 +733,7 @@ function goS3() {
   var d = doneInfo(k);
   if (d) {
     var byOther = d.who && d.who !== WHO;
-    toast(byOther ? "\u{1F465} " + d.who.split(" ")[0] + " j\u00e1 preencheu \u00e0s " + d.time : "\u2705 Voc\u00ea j\u00e1 enviou \u00e0s " + d.time);
+    toast(byOther ? "\uD83D\uDC65 " + d.who.split(" ")[0] + " j\u00e1 preencheu \u00e0s " + d.time : "\u2705 Voc\u00ea j\u00e1 enviou \u00e0s " + d.time);
   }
   renderCk(); updateStats();
 }
@@ -749,7 +748,7 @@ function buildClinics() {
     if (!c) continue;
     var isN=0; for (var j=0;j<c.rooms.length;j++) if(c.rooms[j].type==="IS") isN++;
     html += "<button class=\"cbtn\" id=\"cb_"+c.id+"\" onclick=\"pickClinic(this,'"+c.id+"')\">";
-    html += "<div class=\"ci\">\u{1F3E5}</div>";
+    html += "<div class=\"ci\">\uD83C\uDFE5</div>";
     var lr = lastRonda[c.id];
     var lrTxt = lr ? "<div class=\"c-last\">\u23F1 \u00daltima ronda: " + lr.date + "</div>" : "";
     html += "<div style=\"flex:1\"><div class=\"cn\">"+c.name+"</div><div class=\"cs\">"+(c.rooms.length-isN)+" padr\u00e3o \u00b7 "+isN+" IS</div>"+lrTxt+"</div>";
@@ -815,7 +814,7 @@ function buildClinicProgress() {
     var fillIS = pctIS===100?"clinic-prog-fill complete":pctIS<30?"clinic-prog-fill low":"clinic-prog-fill";
     html += "<div class=\"clinic-prog-row\">";
     html += "<div class=\"clinic-prog-info\">";
-    html += "<span class=\"clinic-prog-name\" style=\"font-size:.72rem;color:#C0440F\">\u{1F300} Salas IS</span>";
+    html += "<span class=\"clinic-prog-name\" style=\"font-size:.72rem;color:#C0440F\">\uD83C\uDF00 Salas IS</span>";
     html += "<span class=\"clinic-prog-nums\">" + feitasIS + "/" + is.length + "</span>";
     html += "</div>";
     html += "<div class=\"clinic-prog-bar\" style=\"height:4px\">";
@@ -832,13 +831,13 @@ function buildRooms() {
     var k = rk(CLINIC.id, r.id);
     var d = doneInfo(k);
     var isIS = r.type === "IS";
-    var nm = r.n.replace(/ \u{1F300}[\s\S]*$/, "").trim();
+    var nm = r.n.replace(/ \uD83C\uDF00[\s\S]*$/, "").trim();
     var byO = d && d.who && d.who !== WHO;
     var isToday = d && d.date === today();
-    var badgeTxt = isToday ? (byO ? "\u{1F465} "+d.who.split(" ")[0]+" " : "\u2713 ") + d.time : "";
+    var badgeTxt = isToday ? (byO ? "\uD83D\uDC65 "+d.who.split(" ")[0]+" " : "\u2713 ") + d.time : "";
     var badge = badgeTxt ? "<div class=\"dbadge\">" + badgeTxt + "</div>" : "";
     html += "<button class=\"rbtn"+(isIS?" is-r":"")+(d?" done":"")+" \" onclick=\"pickRoom('"+r.id+"')\">";
-    html += badge + "<div class=\"rn\">"+nm+"</div><div class=\"rt\">"+(isIS?"\u{1F300} IS":"Padr\u00e3o")+"</div></button>";
+    html += badge + "<div class=\"rn\">"+nm+"</div><div class=\"rt\">"+(isIS?"\uD83C\uDF00 IS":"Padr\u00e3o")+"</div></button>";
   }
   g.innerHTML = html;
 }
@@ -866,7 +865,7 @@ function renderCk() {
     filtered.push(items[i]);
   }
   var body = document.getElementById("ckBody");
-  if (!filtered.length) { body.innerHTML="<div class=\"empty\"><div class=\"empty-ico\">\u{1F50D}</div><p>Nenhum item nesta visualiza\u00e7\u00e3o</p></div>"; return; }
+  if (!filtered.length) { body.innerHTML="<div class=\"empty\"><div class=\"empty-ico\">\uD83D\uDD0D</div><p>Nenhum item nesta visualiza\u00e7\u00e3o</p></div>"; return; }
   var groups = {}, gorder = [];
   for (var i=0; i<filtered.length; i++) {
     var s = filtered[i].sub;
@@ -884,12 +883,12 @@ function renderCk() {
       var cc = st==="ok"?"c-ok":st==="nok"?"c-nok":"";
       var okS = st==="ok"?"sel":"", nokS = st==="nok"?"sel":"";
       var link = item.link && item.link.indexOf("encomenda")<0
-        ? "<a class=\"ilink\" href=\""+item.link+"\" target=\"_blank\">\u{1F6D2} Ver produto</a>" : "";
+        ? "<a class=\"ilink\" href=\""+item.link+"\" target=\"_blank\">\uD83D\uDED2 Ver produto</a>" : "";
       html += "<div class=\"icard "+cc+"\">";
       html += "<div class=\"imain\">";
       html += "<div class=\"ithumb\"><div class=\"emoji\" id=\"ph_"+item.id+"\">"+item.emoji+"</div><img id=\"img_"+item.id+"\" alt=\""+item.nome+"\"></div>";
       html += "<div class=\"ibody\"><div class=\"iname\">"+item.nome+"</div>";
-      html += "<div class=\"imeta\"><span class=\"iqty\">\u{1F4E6} "+item.qty+"</span><span class=\"icat\">"+item.cat+"</span></div>";
+      html += "<div class=\"imeta\"><span class=\"iqty\">\uD83D\uDCE6 "+item.qty+"</span><span class=\"icat\">"+item.cat+"</span></div>";
       html += "<div class=\"iid\">"+item.id+"</div></div>";
       html += "<div class=\"iacts\">";
       html += "<button class=\"iact ok "+okS+"\" onclick=\"sc('"+item.id+"','ok')\">\u2713</button>";
@@ -898,7 +897,7 @@ function renderCk() {
       var noteWrapCls = st==="ok" ? "inote-wrap ok-note" : "inote-wrap";
       var noteBlock = st ? (
         "<div class=\"" + noteWrapCls + "\">" +
-        "<label class=\"inote-label\">" + (st==="nok" ? "\u{1F4DD} Observação (ex: só tem 2, está quebrado...)" : "\u{1F4DD} Observação opcional") + "</label>" +
+        "<label class=\"inote-label\">" + (st==="nok" ? "\uD83D\uDCDD Observação (ex: só tem 2, está quebrado...)" : "\uD83D\uDCDD Observação opcional") + "</label>" +
         "<textarea class=\"inote-input\" rows=\"2\" oninput=\"sn('" + item.id + "',this.value)\" placeholder=\"Deixe em branco se não houver obs...\">" + noteVal + "</textarea>" +
         "</div>"
       ) : "";
@@ -908,7 +907,7 @@ function renderCk() {
   // Obs da sala no final
   var obsVal = getRoomObs();
   html += "<div class=\"sala-obs\">" +
-    "<div class=\"sala-obs-lbl\">\u{1F4CB} Observação geral da sala</div>" +
+    "<div class=\"sala-obs-lbl\">\uD83D\uDCCB Observação geral da sala</div>" +
     "<textarea class=\"sala-obs-ta\" placeholder=\"Ex: falta prateleira, sala com goteira, itens no almoxarifado...\" oninput=\"setRoomObs(this.value);save()\">" + obsVal + "</textarea>" +
     "</div>";
   body.innerHTML = html;
@@ -933,15 +932,15 @@ function updateStats() {
   if (d) {
     btn.className="bsend sent"; btn.textContent="\u2705 Enviado "+d.time; btn.disabled=false;
   } else if (done===0) {
-    btn.className="bsend"; btn.textContent="\u{1F4E4} Enviar"; btn.disabled=true;
+    btn.className="bsend"; btn.textContent="\uD83D\uDCE4 Enviar"; btn.disabled=true;
   } else {
-    btn.className="bsend"; btn.textContent="\u{1F4E4} Enviar ("+done+"/"+total+")"; btn.disabled=false;
+    btn.className="bsend"; btn.textContent="\uD83D\uDCE4 Enviar ("+done+"/"+total+")"; btn.disabled=false;
   }
 }
 
 // ── RESET ────────────────────────────────────────────────
 function resetRoom() {
-  var nm = ROOM.n.split("\u{1F300}")[0].split("\u{1F465}")[0].trim();
+  var nm = ROOM.n.split("\uD83C\uDF00")[0].split("\uD83D\uDC65")[0].trim();
   if (!confirm("Limpar checklist da "+nm+"?")) return;
   var items = ROOM.type==="IS"?ITEMS_IS:ITEMS_PADRAO;
   for(var i=0;i<items.length;i++) { delete checks[sk(CLINIC.id,ROOM.id,items[i].id)]; delete notes[sk(CLINIC.id,ROOM.id,items[i].id)]; }
@@ -982,7 +981,7 @@ async function refreshRooms() {
   if(btn){btn.textContent="\u23F3";btn.disabled=true;}
   await fetchShared();
   buildRooms();
-  if(btn){btn.textContent="\u{1F504} Atualizar";btn.disabled=false;}
+  if(btn){btn.textContent="\uD83D\uDD04 Atualizar";btn.disabled=false;}
   toast("Status atualizado!");
 }
 
@@ -996,7 +995,7 @@ async function enviar() {
     if (!st) continue;
     rows.push({
       responsavel: WHO, clinica: CLINIC.name,
-      sala: ROOM.n.replace(/ \u{1F300}[\s\S]*$/, "").trim(),
+      sala: ROOM.n.replace(/ \uD83C\uDF00[\s\S]*$/, "").trim(),
       tipoSala: ROOM.type==="IS"?"Integra\u00e7\u00e3o Sensorial":"Sala Padr\u00e3o",
       itemId: items[i].id, itemNome: items[i].nome,
       subcategoria: items[i].sub, quantidade: items[i].qty,
